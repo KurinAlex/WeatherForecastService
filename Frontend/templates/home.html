@@ -14,14 +14,6 @@
     <link rel="stylesheet" href="/static/css/air-datepicker.css">
     <style>
 
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-      }
-
       @media (min-width: 768px) {
         .bd-placeholder-img-lg {
           font-size: 3.5rem;
@@ -90,20 +82,55 @@
         display: block !important;
       }
 
+      .choose-date-range-label {
+        transform: translateY(40px);
+      }
+
+
       #airdatepicker1 {
         text-align: right;
         display: inline-block;
+        cursor: pointer;
       }
 
       #airdatepicker2 {
         text-align: right;
         display: inline-block;
+        cursor: pointer;
+      }
+
+      #airdatepicker1:hover,
+      #airdatepicker2:hover{
+        filter: brightness(70%);
       }
 
       #airdatepicker1::placeholder,
       #airdatepicker2::placeholder {
         text-align: left;
         color: #6c757d;
+      }
+
+      .weather-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: -100px;
+        transform: translateY(-10px);
+      }
+
+      .row {
+        display: inline-flex;
+        margin: 0px;
+        padding: 0px;
+      }
+
+      .mt-4 {
+        height: 350px;
+        transform: translateY(-60px);
+      }
+
+      .forecast-button {
+        margin-top: -50px;
       }
 
     </style>
@@ -127,10 +154,16 @@
     </svg>
     <main class="form-signin w-100 m-auto">
   <form class="mt-4">
-    <h1 class="h3 mb-3 fw-normal text-center">Weather forecast</h1>
+    <div class="weather-image">
+      <img width="90px" src="/static/image/free-icon-weather-forecast-8331595.png">
+    </div>
+    <h1 class="h3 mb-3 fw-normal text-center">Weather forecaster</h1>
     <div class="form-floating">
       <input type="city" class="form-control" id="floatingInput" placeholder="City">
       <label for="floatingInput">City</label>
+    </div>
+    <div class="choose-date-range-label">
+      <p class="text-center">Choose date range</p>
     </div>
     <div class="container mt-5">
         <div class="row">
@@ -144,9 +177,10 @@
               </div>
         </div>
     </div>
-    <br/>
-    <button class="btn btn-primary w-100 py-2" type="submit">Forecast</button>
     </form>
+      <div class="forecast-button">
+          <button class="btn btn-primary w-100 py-2" type="submit">Forecast</button>
+      </div>
     </main>
     <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="/static/js/air-datepicker.js"></script>
