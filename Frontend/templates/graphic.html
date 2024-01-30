@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Weather forecast service</title>
+</head>
+<body>
+    <canvas>
+
+    </canvas>
+
+    <style>
+        body {
+            background-color: #182432;
+        }
+    </style>
+
+    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script>
+        let canvas = document.querySelector('canvas');
+        let context = canvas.getContext('2d');
+        let chart = null;
+        let pauseMode = false;
+        const realTimeDemo = (xParseData, yParseData, temperatureData, timeData) => {
+            let i = 50;
+            let interval = setInterval(() => {
+                if (i > temperatureData.length) clearInterval(interval);
+                else if(!pauseMode){
+                    chart.config.data.labels.push(xParseData[i]);
+                    chart.config.data.datasets[0].data.push(yParseData[i]);
+                    chart.config.options.scales.x.min++;
+                    chart.config.options.scales.x.max++;
+                    chart.update();
+                    i++;
+                }
+            }, 400);
+        };
+
+        const createLineChart = (xData, yData) => {
+            let gradient = context.createLinearGradient(0, 0, 0, window.screen.width / 2);
+            gradient.addColorStop(0, 'rgba(74, 169, 230,0.8)');
+            gradient.addColorStop(1, 'rgba(74, 169, 230,0.001)');
+            let data = {
+                labels: xData,
+                datasets: [{
+                    label: 'Max temperature',
+                    data: yData,
+                    pointStyle: false,
+                    fill: true,
+                    backgroundColor: gradient,
+                    borderWidth: 1,
+                    borderColor: 'rgba(74, 169, 230, 1)',
+                    tension: 0.2
+                }]
+            };
+
+            let xScaleConfig = {
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 50,
+                    autoSkip: true,
+                    maxRotation: 0,
+                    color: 'rgba(74, 169, 230,0.9)'
+                },
+                border: {
+                    color: 'rgba(74, 169, 230,1)'
+                },
+                grid: {
+                    color: 'rgba(74, 169, 230,0.3)'
+                }
+            };
+
+            let yScaleConfig = {
+                ticks: {
+                    beginAtZero: true,
+                    autoSkip: true,
+                    maxRotation: 0,
+                    color: 'rgba(74, 169, 230,0.9)'
+                },
+                border: {
+                    color: 'rgba(74, 169, 230,1)'
+                },
+                grid: {
+                    color: 'rgba(74, 169, 230,0.3)'
+                }
+            };
+
+            let zoomOptions = {
+                zoom: {
+                    pinch: {
+                        enabled: true
+                    },
+                    wheel: {
+                        enabled: true
+                    }
+                }
+            }
+
+            let config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: xScaleConfig,
+                        y: yScaleConfig
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                zoom: {
+                  zoom: zoomOptions
+                },
+                animation: {
+                    duration: 400,
+                    easing: 'linear'
+                }
+            };
+
+            chart = new Chart(context, config);
+        };
+
+        fetch('/static/test/test.json')
+            .then(response => response.json())
+            .then(data => {
+                let temperatureData = data.temperature_2m_max;
+                let timeData = data.time;
+                let xData = [];
+                let yData = [];
+
+                for (let i = 0; i < temperatureData.length; i++) {
+                    if (temperatureData[i] !== null) {
+                        xData.push(timeData[i]);
+                        yData.push(temperatureData[i]);
+                    }
+                }
+
+                let xStartData = [];
+                let yStartData = [];
+                let xParseData = [];
+                let yParseData = [];
+
+                for (let i = 0; i < temperatureData.length; i++) {
+                    if (i < 50) {
+                        xStartData.push(xData[i]);
+                        yStartData.push(yData[i]);
+                    } else {
+                        xParseData.push(xData[i]);
+                        yParseData.push(yData[i]);
+                    }
+                }
+
+                createLineChart(xStartData, yStartData);
+                realTimeDemo(xParseData, yParseData, temperatureData, timeData);
+            })
+            .catch(error => console.error('Помилка при отриманні або обробці даних:', error));
+
+        window.addEventListener('click', () => {
+            pauseMode = !pauseMode;
+        })
+    </script>
+</body>
+</html>
