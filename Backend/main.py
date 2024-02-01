@@ -1,6 +1,7 @@
 from logging import basicConfig, DEBUG
 from datetime import datetime, timedelta, UTC, date
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from requests import get, HTTPError
 from werkzeug.exceptions import HTTPException
 from pandas import DataFrame, to_datetime, date_range
@@ -47,6 +48,9 @@ def get_exception_response(message: str, code: str | int):
 
 # flask app instance
 app = Flask(__name__)
+
+# add CORS to allow any origin
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # number of days to take from history before forecast start date
 history_days = 365 * 5
