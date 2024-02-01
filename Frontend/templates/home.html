@@ -179,9 +179,20 @@
     </div>
     </form>
       <div class="forecast-button">
-          <button class="btn btn-primary w-100 py-2" type="submit">Forecast</button>
+          <button onclick="redirect_to_graph()" class="btn btn-primary w-100 py-2" type="submit">Forecast</button>
       </div>
     </main>
+    <script>
+      function redirect_to_graph() {
+        let country=document.getElementById('floatingInput').value
+        let start=document.getElementById('airdatepicker1').value
+        let end=document.getElementById('airdatepicker2').value
+        if (country && start && end) {
+          location.href = `/graphic?country=${country}&start=${start}&end=${end}`
+        }
+      }
+
+    </script>
     <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script src="/static/js/air-datepicker.js"></script>
     <script>
@@ -189,8 +200,9 @@
        new AirDatepicker('#airdatepicker1', {
         isMobile: true,
         autoClose: true,
+        dateFormat: 'yyyy-MM-dd',
         locale: {
-          days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          das: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
           daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
           daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
           months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -203,6 +215,7 @@
       new AirDatepicker('#airdatepicker2', {
         isMobile: true,
         autoClose: true,
+        dateFormat: 'yyyy-MM-dd',
         locale: {
           days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
           daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
