@@ -13,10 +13,8 @@
   <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
   <script>
-
     let canvas = window.document.querySelector('canvas');
     let context = canvas.getContext('2d');
-
     let chart = null;
     let pauseMode = false;
 
@@ -24,26 +22,28 @@
       chart.stop();
       pauseMode = true;
     }
+
     const onPanZoomComplete = () => {
-      if(chart.config.options.scales.x.max > (chart.getDatasetMeta(0).data.length - 5)){
-        pauseMode = false
+      if (chart.config.options.scales.x.max > chart.getDatasetMeta(0).data.length - 5) {
+        pauseMode = false;
       }
     }
-    const realTimeDemo = (xData, yData) => {
+
+    const realTimeDemo = (xData, yData, datasetIndex) => {
       let startI = 50;
       let xOffset = 30;
       let i = startI;
-      let interval = setInterval(()=>{
-        if((i+xOffset) > xData.length) clearInterval(interval);
-        else{
-          if(i === startI){
-            for(let i = startI; i < (startI + xOffset); i++){
+      let interval = setInterval(() => {
+        if (i + xOffset > xData.length) clearInterval(interval);
+        else {
+          if (i === startI) {
+            for (let i = startI; i < startI + xOffset; i++) {
               chart.config.data.labels.push(xData[i]);
             }
           }
-          chart.config.data.labels.push(xData[i+xOffset]);
-          chart.config.data.datasets[0].data.push(yData[i]);
-          if(!pauseMode){
+          chart.config.data.labels.push(xData[i + xOffset]);
+          chart.config.data.datasets[datasetIndex].data.push(yData[i]);
+          if (!pauseMode) {
             chart.config.options.scales.x.min++;
             chart.config.options.scales.x.max++;
             chart.update();
@@ -52,62 +52,50 @@
         }
       }, 400);
     }
-    const createLineChart = (xData, yData) => {
-      // let gradient = context.createLinearGradient(0, 0, 0, window.screen.width/2);
-      // gradient.addColorStop(0, 'rgba(74, 169, 230, 0.8)');
-      // gradient.addColorStop(1, 'rgba(74, 169, 230, 0.001)');
+
+    const createLineChart = (datasets) => {
       let data = {
-        labels: xData,
-        datasets: [{
-          label: 'Max temperature',
-          data: yData,
+        labels: datasets[0].xData,
+        datasets: datasets.map((dataset, index) => ({
+          label: dataset.label,
+          data: dataset.yData,
           pointStyle: false,
           fill: true,
           backgroundColor: 'rgba(74, 169, 230, 0)',
           borderWidth: 2,
-          //borderColor: 'rgba(74, 169, 230, 1)',
-          borderColor: 'rgb(255,0,0)',
-          tension: 0.2
-        },
-        {
-          label: 'Min temperature',
-          data: yData,
-          pointStyle: false,
-          fill: true,
-          backgroundColor: 'rgba(74, 169, 230, 0)',
-          borderWidth: 2,
-          borderColor: 'rgba(74, 169, 230, 1)',
-          tension: 0.2
-        }
-        ]
-      }
+          borderColor: index === 0 ? 'rgb(255,0,0)' : index === 1 ? 'rgba(74, 169, 230, 1)' : 'rgb(0,255,0)', // Set different colors
+          tension: 0.2,
+        })),
+      };
+
       let xScaleConfig = {
         min: 0,
         max: 50,
         ticks: {
           autoSkip: true,
           maxRotation: 0,
-          // minRotation: 90,
-          color: 'rgba(74, 169, 230, 0.9)'
+          color: 'rgba(74, 169, 230, 0.9)',
         },
         border: {
-          color: 'rgba(74, 169, 230, 1)'
+          color: 'rgba(74, 169, 230, 1)',
         },
         grid: {
-          color: 'rgba(74, 169, 230, 0.3)'
-        }
-      }
+          color: 'rgba(74, 169, 230, 0.3)',
+        },
+      };
+
       let yScaleConfig = {
         ticks: {
-          color: 'rgba(74, 169, 230, 0.9)'
+          color: 'rgba(74, 169, 230, 0.9)',
         },
         border: {
-          color: 'rgba(74, 169, 230, 1)'
+          color: 'rgba(74, 169, 230, 1)',
         },
         grid: {
-          color: 'rgba(74, 169, 230, 0.3)'
-        }
-      }
+          color: 'rgba(74, 169, 230, 0.3)',
+        },
+      };
+
       let zoomOptions = {
         pan: {
           enabled: true,
@@ -118,67 +106,93 @@
         zoom: {
           mode: 'x',
           pinch: {
-            enabled: true
+            enabled: true,
           },
           wheel: {
-            enabled: true
+            enabled: true,
           },
           onZoomStart: onPanZoomStart,
           onZoomComplete: onPanZoomComplete,
-        }
-      }
+        },
+      };
+
       let config = {
         type: 'line',
         data: data,
         options: {
           scales: {
             x: xScaleConfig,
-            y: yScaleConfig
+            y: yScaleConfig,
           },
           plugins: {
             legend: {
-              display: false
+              display: false,
             },
-            zoom: zoomOptions
+            zoom: zoomOptions,
           },
           animation: {
             duration: 400,
             easing: 'linear',
             y: {
-              fn: (from, to, factor) => to
-            }
-          }
-        }
-      }
+              fn: (from, to, factor) => to,
+            },
+          },
+        },
+      };
       chart = new Chart(context, config);
     }
 
-    axios.get('http://127.0.0.1:5000/countries/{{country}}/forecast?start={{start}}&end={{end}}')
-     .then((response)=>{
-      let data = response.data.max_temperature.forecast;
-      let xData = [];
-      let yData = [];
-      for(let i = 0; i < data.length; i++){
-        xData.push(data[i].date);
-        yData.push(data[i].value);
-      }
-      let xStartData = [];
-      let yStartData = [];
-      let xParseData = [];
-      let yParseData = [];
-      for(let i = 0; i < xData.length; i++){
-        if(i < 50){
-          xStartData.push(xData[i]);
-          yStartData.push(yData[i]);
-        }else{
-          xParseData.push(xData[i]);
-          yParseData.push(yData[i]);
+    axios
+      .get('http://127.0.0.1:5000/countries/{{country}}/forecast?start={{start}}&end={{end}}')
+      .then((response) => {
+        let data = response.data.max_temperature.forecast;
+        let data1 = response.data.min_temperature.forecast;
+        let data2 = response.data.mean_temperature.forecast;
+        let xData = [];
+        let yData = [];
+        let xData1 = [];
+        let yData1 = [];
+        let xData2 = [];
+        let yData2 = [];
+        for (let i = 0; i < data.length; i++) {
+          xData.push(data[i].date);
+          yData.push(data[i].value);
         }
-      }
-      createLineChart(xStartData, yStartData);
-      realTimeDemo(xParseData, yParseData);
-    });
+        for (let i = 0; i < data1.length; i++) {
+          xData1.push(data1[i].date);
+          yData1.push(data1[i].value);
+        }
+        for (let i = 0; i < data2.length; i++) {
+          xData2.push(data2[i].date);
+          yData2.push(data2[i].value);
+        }
 
-    window.addEventListener('click', ()=>pauseMode = !pauseMode);
+        let datasets = [
+          { label: 'Max temperature', xData: xData, yData: yData },
+          { label: 'Min temperature', xData: xData1, yData: yData1 },
+          { label: 'Mean temperature', xData: xData2, yData: yData2 },
+        ];
+
+        let xStartData = [];
+        let yStartData = [];
+        let xParseData = [];
+        let yParseData = [];
+        for (let i = 0; i < xData.length; i++) {
+          if (i < 50) {
+            xStartData.push(xData[i]);
+            yStartData.push(yData[i]);
+          } else {
+            xParseData.push(xData[i]);
+            yParseData.push(yData[i]);
+          }
+        }
+
+        createLineChart(datasets);
+        realTimeDemo(xParseData, yParseData, 0);
+        realTimeDemo(xData1, yData1, 1);
+        realTimeDemo(xData2, yData2, 2);
+      });
+
+    window.addEventListener('click', () => (pauseMode = !pauseMode));
   </script>
 </body>
