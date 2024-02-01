@@ -71,7 +71,7 @@
         },
         {
           label: 'Min temperature',
-          data: yData.map(elem => elem/3),
+          data: yData,
           pointStyle: false,
           fill: true,
           backgroundColor: 'rgba(74, 169, 230, 0)',
@@ -153,10 +153,9 @@
       chart = new Chart(context, config);
     }
 
-    fetch('/static/test/forecast.json')
-     .then(response => response.json())
+    axios.get('http://127.0.0.1:5000/countries/{{country}}/forecast?start={{start}}&end={{end}}')
      .then((response)=>{
-      let data = response.max_temperature.history;
+      let data = response.data.max_temperature.forecast;
       let xData = [];
       let yData = [];
       for(let i = 0; i < data.length; i++){

@@ -10,11 +10,11 @@ def forecast_page():
 
 @app.route("/graphic")
 def graphic_page():
-    country = request.args.getlist("country")
-    start = request.args.getlist("start")
-    end = request.args.getlist("end")
+    country = request.args.get("country")
+    start = request.args.get("start")
+    end = request.args.get("end")
     return render_template("graphic.html", country=country, start=start, end=end)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port = 5001)
