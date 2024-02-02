@@ -138,3 +138,17 @@ Frontend will run on port 5001 locally.
 
 To access it, open http://localhost:5001/ in your browser, and you'll see a UI where you can input country name and choose forecast dates.
 After pressing Forecast button you will be redirected to /graphic page, where plot of predicted min/mean/max temperatures for specified dates will be shown.
+
+## Unit and Integration test
+
+In Backend/tests directory run
+```
+python unit_tests.py
+```
+to run unit tests or
+```
+python integration_tests.py
+```
+to run integration tests.
+
+Don't forget to install all needed packages (refer to Backend section).
